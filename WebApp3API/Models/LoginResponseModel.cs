@@ -10,6 +10,6 @@ namespace WebApp3API.Models
         public string status { get; set; }
         public string firstname { get; set; }
         public string lastname { get; set; }
-
+        public string approve { get; set; }
     }
 }

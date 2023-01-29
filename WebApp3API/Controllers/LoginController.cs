@@ -31,100 +31,63 @@ namespace WebApp3API.Controllers
         }
 
         // POST api/<controller>
-        public LoginResponseModel Post([FromBody] LoginRequstModel requst)
+        public LoginResponseModel Post([FromBody] LoginRequestModel requst)
         {
             logger.Info("Start Login");
-
-            NameValueCollection myKeys = ConfigurationManager.AppSettings;
+            NameValueCollection loginStatus = ConfigurationManager.AppSettings;
             LoginResponseModel LoginResponseModel = new LoginResponseModel();
-            string check;
-            //string username ;
-            //string password;
-            string firstname = "null";
-            string lastname = "null";
+
+            string approve;
+
             try
             {
-                MySql.Data.MySqlClient.MySqlConnection conn;
-                MySql.Data.MySqlClient.MySqlCommand cmd;
+                MySqlConnection conn;
+                MySqlCommand cmd;
 
                 String queryStr;
 
-                string connString = System.Configuration.ConfigurationManager.ConnectionStrings["WebAppConnString"].ToString();
-                conn = new MySql.Data.MySqlClient.MySqlConnection(connString);
-
+                string connString = ConfigurationManager.ConnectionStrings["WebAppConnString"].ToString();
+                conn = new MySqlConnection(connString);
 
                 conn.Open();
-                queryStr = ("SELECT username,password,firstname, lastname FROM webappdemo.userregistration where (username ='" + requst.username + "') and (password ='" + requst.password +"')");
+                queryStr = ("SELECT username,password,firstname, lastname,approve FROM webappdemo.userregistration where (username ='" + requst.username + "') and (password ='" + requst.password + "') ");
                 cmd = new MySqlCommand(queryStr, conn);
                 MySqlDataReader dtReader = cmd.ExecuteReader();
 
-                if (dtReader.Read())
+                while (dtReader.Read())
                 {
-                    logger.Info("Login success!");
-                    check = myKeys["AAA"]; 
-                    firstname = dtReader["firstname"].ToString();
-                    lastname = dtReader["lastname"].ToString();
+                    approve = dtReader["approve"].ToString();
 
+                    if (approve == "2" || approve == "1")
+                    {
+                        logger.Info("Login success!");
+                        LoginResponseModel.status = loginStatus["Success"];
+                        LoginResponseModel.firstname = dtReader["firstname"].ToString();
+                        LoginResponseModel.lastname = dtReader["lastname"].ToString();
+                        LoginResponseModel.approve = dtReader["approve"].ToString();   
+                    }
+
+
+                    else
+                    {
+                        LoginResponseModel.status = loginStatus["Invalid"];
+                        logger.Info("Login fail");
+
+
+                    }
+
+
+                
                 }
-
-                else {
-                    check = myKeys["BBB"];
-                    logger.Info("Login fail");
-                }
-
-                //username = dtReader["username"].ToString();
-                //password = dtReader["password"].ToString();
-
-                //if (dtReader.HasRows)
-                //{
-                //    while (dtReader.Read())
-                //    {
-                //        username = dtReader["username"].ToString();
-                //        password = dtReader["password"].ToString();
-
-
-
-                //        if (requst.username == username && requst.password == password)
-                //        {
-                //            logger.Info("Exit login controller. Login success!");
-                //            check = "54525545";
-                //            firstname = dtReader["firstname"].ToString();
-                //            lastname = dtReader["lastname"].ToString();
-
-                //            break;
-                //        }
-
-                //         check = "4552524F52";
-
-                //    }
-                //    if (check == "4552524F52")
-                //    {
-                //        logger.Info("Login Fail 4552524F52");
-                //    }
-
-
-
-
-
-                //}
                 conn.Close();
-                LoginResponseModel.status = check;
-                LoginResponseModel.firstname = firstname;
-                LoginResponseModel.lastname = lastname; 
-
             }
             catch (Exception ex)
             {
                 logger.Error("Login Error" + ex.Message);
-                check = myKeys["CCC"];
-                LoginResponseModel.status = check;
-                
-
+                LoginResponseModel.status = loginStatus["Error"];
             }
             logger.Info("Login Finish");
             return LoginResponseModel;
-
-
         }
 
         // PUT api/<controller>/5
@@ -138,3 +101,35 @@ namespace WebApp3API.Controllers
         }
     }
 }
+
+
+//username = dtReader["username"].ToString();
+//password = dtReader["password"].ToString();
+
+//if (dtReader.HasRows)
+//{
+//    while (dtReader.Read())
+//    {
+//        username = dtReader["username"].ToString();
+//        password = dtReader["password"].ToString();
+
+
+
+//        if (requst.username == username && requst.password == password)
+//        {
+//            logger.Info("Exit login controller. Login success!");
+//            check = "54525545";
+//            firstname = dtReader["firstname"].ToString();
+//            lastname = dtReader["lastname"].ToString();
+
+//            break;
+//        }
+
+//         check = "4552524F52";
+
+//    }
+//    if (check == "4552524F52")
+//    {
+//        logger.Info("Login Fail 4552524F52");
+//    }
+//}

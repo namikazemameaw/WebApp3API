@@ -5,9 +5,8 @@ using System.Web;
 
 namespace WebApp3API.Models
 {
-    public class LoginRequstModel
+    public class StatusResponseModel
     {
-        public string username { get; set; }
-        public string password { get; set; }
+            public string status { get; set; }
     }
 }

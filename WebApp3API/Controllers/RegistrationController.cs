@@ -11,7 +11,7 @@ using WebApp3API.Models;
 
 namespace WebApp3API.Controllers
 {
-    public class WebApp3Controller : ApiController
+    public class RegistrationController : ApiController
     {
         // GET api/<controller>
         public IEnumerable<string> Get()
@@ -25,11 +25,10 @@ namespace WebApp3API.Controllers
             return "value";
         }
 
-
         // POST api/<controller>
-        public ResponseModel Post([FromBody]  RequstModel requst)
+        public StatusResponseModel Post([FromBody] RequstModel requst)
         {
-            ResponseModel responseModel = new ResponseModel();
+            StatusResponseModel statusResponseModel = new StatusResponseModel();
             int approve = 0;
             try
             {
@@ -40,7 +39,7 @@ namespace WebApp3API.Controllers
 
                 string selectStr;
                 string queryStr;
-                
+                // step 1 validate user
                 string connString = System.Configuration.ConfigurationManager.ConnectionStrings["WebAppConnString"].ToString();
                 conn = new MySql.Data.MySqlClient.MySqlConnection(connString);
                 conn1 = new MySql.Data.MySqlClient.MySqlConnection(connString);
@@ -53,37 +52,36 @@ namespace WebApp3API.Controllers
 
                 if (dtReader.Read())
                 {
-                    responseModel.status = false;
+                    statusResponseModel.status = "duplicate";
 
                 }
                 else
                 {
 
-                queryStr = "INSERT INTO webappdemo.userregistration (firstname, middlename, lastname, email, phonenumber, username, password, approve)" +
-                    "VALUES('" + requst.firstname + "','" + requst.middlename + "','" + requst.lastname + "','" +
-                    requst.email + "','" + requst.phonenumber + "','" + requst.username + "','" + requst.password + "','" + approve + "')";
+                    queryStr = "INSERT INTO webappdemo.userregistration (firstname, middlename, lastname, email, phonenumber, username, password, approve)" +
+                        "VALUES('" + requst.firstname + "','" + requst.middlename + "','" + requst.lastname + "','" +
+                        requst.email + "','" + requst.phonenumber + "','" + requst.username + "','" + requst.password + "','" + approve + "')";
 
-                cmd = new MySql.Data.MySqlClient.MySqlCommand(queryStr, conn);
+                    cmd = new MySql.Data.MySqlClient.MySqlCommand(queryStr, conn);
 
-                cmd.ExecuteReader();
+                    cmd.ExecuteReader();
 
-                
-                responseModel.status = true;
+
+                    statusResponseModel.status = "true";
                 }
                 conn.Close();
 
             }
             catch (Exception ex)
             {
-                responseModel.status = false;
-                
+                statusResponseModel.status = "false";
+
             }
 
-            return responseModel;
+            return statusResponseModel;
 
 
         }
-
 
         // PUT api/<controller>/5
         public void Put(int id, [FromBody] string value)
